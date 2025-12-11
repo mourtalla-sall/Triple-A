@@ -1,0 +1,73 @@
+Challenge Triple A 
+=============================Description=============================================
+
+Ce projet consiste à créer un outil simple de monitoring pour une machine virtuelle Linux.
+Il collecte des informations système (CPU, RAM, processus, réseau, fichiers) grâce à un script Python,
+puis génère une page web index.html basée sur un template HTML/CSS pour afficher les données en temps réel (chaque 30s).
+
+=====================================Prérequis======================================================
+
+création d'un VM Were
+Ubuntu 22.04 LTS 
+Python 3.12.3
+Modules Python : psutil
+Navigateur web pour afficher le dashboard et le pages home
+Accès internet pour installer les dépendances
+
+=============================================Installation=========================================
+installation d'un VM where
+installation Ubuntu
+Cloner le dépôt sur github puis installer les dépendances requises.
+
+================================Commandes pour installer les dépendances=====================================
+sudo apt update
+sudo apt install python3
+sudo apt install python3-pip -y
+python -m venv venv
+sources venv/bin/activate
+pip install flask
+pip install psutil
+
+======================================================Utilisation============================================
+Comment lancer le script
+python3 monitor.py
+
+====================================Ouvrir index.html dans le navigateur==========================================
+
+Cela génère automatiquement le fichier index.html dans le dossier du projet.
+Ouvrir index.html dans le navigateur
+Une fois le script exécuté, ouvrir simplement :
+index.html
+dans Firefox ou Chrome.
+
+=======================================================Fonctionnalités=======================================================
+
+Informations système : nom de machine, OS, uptime, utilisateurs
+CPU : cœurs, fréquence, taux d'utilisation
+Mémoire : totale, utilisée, pourcentage avec barre graphique
+Réseau : IP principale
+Processus : top 3 des processus les plus gourmands
+Fichiers : statistiques sur .txt, .py, .pdf, .jpg
+Actualisation automatique toutes les 30 s 
+
+=======================================================Captures d'écran========================================================
+screenshots/terminal.png
+
+screenshots/index.png
+
+=================================================Difficultés rencontrées=================================================
+
+Récupération fiable de certaines statistiques du système
+Gestion du templating HTML avec les variables
+l'itulisation de flask pour la connextion des api 
+la création de l'environnement vurtuelle (venv)
+l'itulisation des commendes pour installer les dépendences 
+
+==================================================Améliorations possibles=========================================================
+Ajout de graphiques avancés ( chart.js)
+Monitoring en temps réel via serveur Flask
+Analyse plus détaillée des fichiers
+
+
+
+
