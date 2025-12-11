@@ -1,0 +1,125 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <a class="card" style="width: 140px; height: 50px;" href="http://127.0.0.1:5000/">Go to home</a>
+    <div id="" class="card" style="width: 500px; height: 320px;">
+        <canvas id="canvasCharCPU"></canvas>
+    </div>
+    <div id="" class="card" style="width: 600px; height: 220px;">
+        <canvas id="canvasCharCoresCPU"></canvas>
+    </div>
+</body>
+
+</html>
+<script>
+    // {
+    //     "cpu_count": 12,
+    //     "cpu_frequency_mhz": {
+    //         "current": 3000,
+    //         "max": 3000,
+    //         "min": 0
+    //     },
+    //     "cpu_percent_per_core": [
+    //         33.3,
+    //         24.6,
+    //         17.2,
+    //         15.4,
+    //         20,
+    //         16.9,
+    //         28.1,
+    //         9.4,
+    //         14.1,
+    //         0,
+    //         9.4,
+    //         9.4
+    //     ]
+    // }
+    let data;
+    let myCpuChart;
+    let myCoresChart;
+    async function take_cpu_info() {
+        try {
+            const response = await fetch("http://127.0.0.1:5000/API/cpu");
+            const json = await response.json();
+            console.log(json);
+            data = json;
+
+            const chartData = {
+                labels: ["CPU"],
+                datasets: [{
+                    label: 'CPU ',
+                    data: [data.cpu_frequency_mhz.current],
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            };
+
+            if (myCpuChart) {
+                myCpuChart.data = chartData;
+                myCpuChart.options.scales.y.min = data.cpu_frequency_mhz.min;
+                myCpuChart.options.scales.y.max = data.cpu_frequency_mhz.max;
+                myCpuChart.update();
+            } else {
+                myCpuChart = new Chart(document.getElementById('canvasCharCPU'), {
+                    type: 'bar',
+                    data: chartData,
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                min: data.cpu_frequency_mhz.min,
+                                max: data.cpu_frequency_mhz.max
+                            }
+                        }
+                    }
+                });
+            }
+
+            const coresChartData = {
+                labels: data.cpu_percent_per_core.map((_, i) => `Core ${i + 1}`),
+                datasets: [{
+                    label: 'Cores %',
+                    data: data.cpu_percent_per_core,
+                    backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    borderWidth: 1
+                }]
+            };
+
+            if (myCoresChart) {
+                myCoresChart.data = coresChartData;
+                myCoresChart.update();
+            } else {
+                myCoresChart = new Chart(document.getElementById('canvasCharCoresCPU'), {
+                    type: 'bar',
+                    data: coresChartData,
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100
+                            }
+                        }
+                    }
+                });
+            }
+        } catch (error) {
+            console.log("Some kind of shit happen here: " + error)
+        }
+    }
+    take_cpu_info();
+    setInterval(take_cpu_info, 3000)
+    max_fr = 3000
+    min_fr = 1000
+</script>
