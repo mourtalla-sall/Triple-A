@@ -51,7 +51,8 @@ Actualisation automatique toutes les 30 s
 
 =======================================================Captures d'écran========================================================
 screenshots/terminal.png
-https://github.com/mourtalla-sall/Triple-A/issues/1#issue-3720783140
+<img width="823" height="257" alt="Image" src="https://github.com/user-attachments/assets/71fdeded-7ebe-4e2a-af98-94b9a70b2318" />
+
 
 screenshots/index.png
 
@@ -67,6 +68,7 @@ l'itulisation des commendes pour installer les dépendences
 Ajout de graphiques avancés ( chart.js)
 Monitoring en temps réel via serveur Flask
 Analyse plus détaillée des fichiers
+
 
 
 
