@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from .system_module.psutile_module import take_cpu_info, take_disk_partision,check_network_interfaces,take_ram 
+from .system_module.psutile_module import take_cpu_info, take_disk_partision, check_network_interfaces, take_ram, take_general_info
 
 data_api = Blueprint('data_api', __name__, url_prefix='/API')
 
@@ -24,5 +24,6 @@ def take_ram_data():
     return jsonify(data)
 
 @data_api.route("/general-data")
-def f():
-    return None
+def general_data():
+    data = take_general_info()
+    return data

@@ -1,67 +1,154 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <style>
+        body {
+            background: #2C3E50;
+            color: #fff;
+            font-family: 'Source Sans Pro', sans-serif;
+            margin: 0;
+            padding: 20px;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        .btn-home {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #2980B9;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            transition: background 0.3s ease;
+        }
+        .btn-home:hover {
+            background: #3498DB;
+        }
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+        }
+        .chart-card {
+            background: #34495E;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 16px;
+            transition: transform 0.3s ease;
+        }
+        .chart-card:hover {
+            transform: translateY(-5px);
+        }
+        .chart-card h2 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            font-weight: 400;
+        }
+        canvas {
+            width: 100% !important;
+            height: 250px !important;
+        }
+        @media (max-width: 768px) {
+            .dashboard-container {
+                grid-template-columns: 1fr;
+            }
+            .chart-card {
+                padding: 12px;
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <a class="card" style="width: 140px; height: 50px;" href="http://127.0.0.1:5000/">Go to home</a>
-    <div id="" class="card" style="width: 500px; height: 320px;">
-        <canvas id="canvasCharCPU"></canvas>
+    <a class="btn-home" href="http://127.0.0.1:5000/">Go to home</a>
+    <div class="dashboard-container">
+        <div class="chart-card">
+            <h2>CPU Frequency</h2>
+            <canvas id="canvasCharCPU"></canvas>
+        </div>
+
+        <div class="chart-card">
+            <h2>CPU Core Usage</h2>
+            <canvas id="canvasCharCoresCPU"></canvas>
+        </div>
+
+        <div class="chart-card">
+            <h2>RAM Usage</h2>
+            <canvas id="canvasRam"></canvas>
+        </div>
     </div>
-    <div id="" class="card" style="width: 600px; height: 220px;">
-        <canvas id="canvasCharCoresCPU"></canvas>
-    </div>
+
 </body>
 
 </html>
 <script>
-    // {
-    //     "cpu_count": 12,
-    //     "cpu_frequency_mhz": {
-    //         "current": 3000,
-    //         "max": 3000,
-    //         "min": 0
-    //     },
-    //     "cpu_percent_per_core": [
-    //         33.3,
-    //         24.6,
-    //         17.2,
-    //         15.4,
-    //         20,
-    //         16.9,
-    //         28.1,
-    //         9.4,
-    //         14.1,
-    //         0,
-    //         9.4,
-    //         9.4
-    //     ]
-    // }
     let data;
     let myCpuChart;
     let myCoresChart;
+    let myRamChart;
+    const commonOptions = {
+        plugins: {
+            legend: {
+                labels: {
+                    color: '#fff'
+                }
+            },
+            title: {
+                color: '#fff'
+            }
+        },
+        scales: {
+            x: {
+                grid: {
+                    color: 'rgba(255,255,255,0.1)'
+                },
+                ticks: {
+                    color: '#fff'
+                }
+            },
+            y: {
+                grid: {
+                    color: 'rgba(255,255,255,0.1)'
+                },
+                ticks: {
+                    color: '#fff'
+                }
+            }
+        },
+        animation: {
+            duration: 1000,
+            easing: 'easeInOutQuart'
+        }
+    };
+
     async function take_cpu_info() {
         try {
             const response = await fetch("http://127.0.0.1:5000/API/cpu");
             const json = await response.json();
-            console.log(json);
             data = json;
 
+            // Create gradient for CPU frequency
+            const cpuCtx = document.getElementById('canvasCharCPU').getContext('2d');
+            const cpuGradient = cpuCtx.createLinearGradient(0, 0, 0, 250);
+            cpuGradient.addColorStop(0, 'rgba(41, 128, 185, 0.8)');
+            cpuGradient.addColorStop(1, 'rgba(41, 128, 185, 0.2)');
+
             const chartData = {
-                labels: ["CPU"],
+                labels: ["CPU Frequency"],
                 datasets: [{
-                    label: 'CPU ',
+                    label: 'Current (MHz)',
                     data: [data.cpu_frequency_mhz.current],
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
+                    backgroundColor: cpuGradient,
+                    borderColor: 'rgba(41, 128, 185, 1)',
+                    borderWidth: 1,
+                    borderRadius: 5  // Rounded bars
                 }]
             };
 
@@ -71,29 +158,46 @@
                 myCpuChart.options.scales.y.max = data.cpu_frequency_mhz.max;
                 myCpuChart.update();
             } else {
-                myCpuChart = new Chart(document.getElementById('canvasCharCPU'), {
+                myCpuChart = new Chart(cpuCtx, {
                     type: 'bar',
                     data: chartData,
                     options: {
+                        ...commonOptions,
+                        plugins: {
+                            ...commonOptions.plugins,
+                            title: {
+                                display: true,
+                                text: 'CPU Frequency (MHz)',
+                                font: { size: 16 }
+                            },
+                            legend: { display: false }
+                        },
                         scales: {
                             y: {
+                                ...commonOptions.scales.y,
                                 beginAtZero: true,
                                 min: data.cpu_frequency_mhz.min,
                                 max: data.cpu_frequency_mhz.max
-                            }
+                            },
+                            x: commonOptions.scales.x
                         }
                     }
                 });
             }
+            const coresCtx = document.getElementById('canvasCharCoresCPU').getContext('2d');
+            const coresGradient = coresCtx.createLinearGradient(0, 0, 0, 250);
+            coresGradient.addColorStop(0, 'rgba(155, 89, 182, 0.8)');
+            coresGradient.addColorStop(1, 'rgba(155, 89, 182, 0.2)');
 
             const coresChartData = {
                 labels: data.cpu_percent_per_core.map((_, i) => `Core ${i + 1}`),
                 datasets: [{
-                    label: 'Cores %',
+                    label: 'Usage %',
                     data: data.cpu_percent_per_core,
-                    backgroundColor: 'rgba(153, 102, 255, 0.2)',
-                    borderColor: 'rgba(153, 102, 255, 1)',
-                    borderWidth: 1
+                    backgroundColor: coresGradient,
+                    borderColor: 'rgba(155, 89, 182, 1)',
+                    borderWidth: 1,
+                    borderRadius: 5  
                 }]
             };
 
@@ -101,25 +205,129 @@
                 myCoresChart.data = coresChartData;
                 myCoresChart.update();
             } else {
-                myCoresChart = new Chart(document.getElementById('canvasCharCoresCPU'), {
+                myCoresChart = new Chart(coresCtx, {
                     type: 'bar',
                     data: coresChartData,
                     options: {
+                        ...commonOptions,
+                        plugins: {
+                            ...commonOptions.plugins,
+                            title: {
+                                display: true,
+                                text: 'CPU Core Usage (%)',
+                                font: { size: 16 }
+                            }
+                        },
                         scales: {
                             y: {
+                                ...commonOptions.scales.y,
                                 beginAtZero: true,
                                 max: 100
-                            }
+                            },
+                            x: commonOptions.scales.x
                         }
                     }
                 });
             }
         } catch (error) {
-            console.log("Some kind of shit happen here: " + error)
+            console.log("Error fetching CPU data: " + error);
         }
     }
+
+    async function take_ram_info() {
+        try {
+            const response = await fetch("http://127.0.0.1:5000/API/ram");
+            const data = await response.json();
+            const ramCtx = document.getElementById('canvasRam').getContext('2d');
+            const ramGradientMB = ramCtx.createLinearGradient(0, 0, 0, 250);
+            ramGradientMB.addColorStop(0, 'rgba(52, 152, 219, 0.8)');
+            ramGradientMB.addColorStop(1, 'rgba(52, 152, 219, 0.2)');
+
+            const ramGradientPercent = ramCtx.createLinearGradient(0, 0, 0, 250);
+            ramGradientPercent.addColorStop(0, 'rgba(231, 76, 60, 0.8)');
+            ramGradientPercent.addColorStop(1, 'rgba(231, 76, 60, 0.2)');
+
+            const charRamData = {
+                labels: ["Total RAM", "Used RAM", "Available RAM", "Usage %"],
+                datasets: [{
+                    label: 'RAM (MB)',
+                    data: [data['Total_RAM:'], data['Used_RAM:'], data['Available_RAM:'], null],
+                    backgroundColor: ramGradientMB,
+                    borderColor: 'rgba(52, 152, 219, 1)',
+                    borderWidth: 1,
+                    borderRadius: 5,
+                    yAxisID: 'y'
+                }, {
+                    label: 'Usage (%)',
+                    data: [null, null, null, data.Usage],
+                    backgroundColor: ramGradientPercent,
+                    borderColor: 'rgba(231, 76, 60, 1)',
+                    borderWidth: 1,
+                    borderRadius: 5,
+                    yAxisID: 'y1'
+                }]
+            };
+
+            if (myRamChart) {
+                myRamChart.data = charRamData;
+                myRamChart.options.scales.y.max = data['Total_RAM:'];
+                myRamChart.update();
+            } else {
+                myRamChart = new Chart(ramCtx, {
+                    type: 'bar',
+                    data: charRamData,
+                    options: {
+                        ...commonOptions,
+                        plugins: {
+                            ...commonOptions.plugins,
+                            title: {
+                                display: true,
+                                text: 'RAM Statistics',
+                                font: { size: 16 }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                ...commonOptions.scales.y,
+                                id: 'y',
+                                type: 'linear',
+                                position: 'left',
+                                beginAtZero: true,
+                                max: data['Total_RAM:'],
+                                title: {
+                                    display: true,
+                                    text: 'MB',
+                                    color: '#fff'
+                                }
+                            },
+                            y1: {
+                                ...commonOptions.scales.y,
+                                id: 'y1',
+                                type: 'linear',
+                                position: 'right',
+                                beginAtZero: true,
+                                max: 100,
+                                title: {
+                                    display: true,
+                                    text: '%',
+                                    color: '#fff'
+                                },
+                                grid: {
+                                    drawOnChartArea: false
+                                }
+                            },
+                            x: commonOptions.scales.x
+                        }
+                    }
+                });
+            }
+        } catch (error) {
+            console.log("Error fetching RAM data: " + error);
+        }
+    }
+
     take_cpu_info();
-    setInterval(take_cpu_info, 3000)
-    max_fr = 3000
-    min_fr = 1000
+    take_ram_info();
+    setInterval(take_cpu_info, 3000);
+    setInterval(take_ram_info, 3000);
 </script>
