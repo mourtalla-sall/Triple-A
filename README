@@ -51,7 +51,10 @@ Actualisation automatique toutes les 30 s
 
 =======================================================Captures d'écran========================================================
 screenshots/terminal.png
-<img width="823" height="257" alt="Image" src="https://github.com/user-attachments/assets/71fdeded-7ebe-4e2a-af98-94b9a70b2318" />
+terminal 1<img width="823" height="257" alt="Image" src="https://github.com/user-attachments/assets/71fdeded-7ebe-4e2a-af98-94b9a70b2318" />
+terminal2 : <img width="406" height="143" alt="Image" src="https://github.com/user-attachments/assets/757f32b8-a3ad-4f14-a651-44bb07fffa8f" />
+terminal3 : <img width="406" height="264" alt="Image" src="https://github.com/user-attachments/assets/34c0d4ff-58d8-46ed-9613-dddc1dc54c1d" />
+terminal 4 : <img width="404" height="268" alt="Image" src="https://github.com/user-attachments/assets/43e5937d-8d9c-412a-a908-e466438fea83" />
 
 
 screenshots/index.png
@@ -68,6 +71,7 @@ l'itulisation des commendes pour installer les dépendences
 Ajout de graphiques avancés ( chart.js)
 Monitoring en temps réel via serveur Flask
 Analyse plus détaillée des fichiers
+
 
 
 
