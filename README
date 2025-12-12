@@ -20,7 +20,7 @@ installation Ubuntu
 Cloner le dépôt sur github puis installer les dépendances requises.
 
 ================================Commandes pour installer les dépendances=====================================
-sudo apt update
+sudo apt -update
 sudo apt install python3
 sudo apt install -y python3-pip 
 python -m venv venv
@@ -71,6 +71,7 @@ l'itulisation des commendes pour installer les dépendences
 Ajout de graphiques avancés ( chart.js)
 Monitoring en temps réel via serveur Flask
 Analyse plus détaillée des fichiers
+
 
 
 
